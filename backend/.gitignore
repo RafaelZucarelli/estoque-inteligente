@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .env
 estoque.db
+test.db
+.pytest_cache/
