@@ -66,3 +66,14 @@ class ForecastResponse(BaseModel):
     average_daily_sales: float
     days_until_stockout: Optional[float]
     status: str
+
+class ProductWithForecast(BaseModel):
+    id: int
+    name: str
+    sku: str
+    current_stock: int
+    reorder_point: int
+    unit_cost: float
+    average_daily_sales: float
+    days_until_stockout: Optional[float]
+    status: str
