@@ -1,16 +1,30 @@
 import { useEffect, useState } from "react";
-import { getProducts } from "../services/productService";
-import type { Product } from "../types/Product";
+import { getDashboard } from "../services/productService";
+import type { ProductWithForecast } from "../types/Product";
+
+const statusColors: Record<string, string> = {
+  ok: "#4caf50",
+  atencao: "#ff9800",
+  critico: "#f44336",
+  sem_dados: "#9e9e9e",
+};
+
+const statusLabels: Record<string, string> = {
+  ok: "OK",
+  atencao: "Atenção",
+  critico: "Crítico",
+  sem_dados: "Sem dados",
+};
 
 function Dashboard() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductWithForecast[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function loadDashboard() {
       try {
-        const data = await getProducts();
+        const data = await getDashboard();
         setProducts(data);
       } catch (err) {
         setError("Não foi possível carregar os produtos.");
@@ -19,7 +33,7 @@ function Dashboard() {
       }
     }
 
-    loadProducts();
+    loadDashboard();
   }, []);
 
   if (loading) return <p>Carregando produtos...</p>;
@@ -31,19 +45,39 @@ function Dashboard() {
       <table>
         <thead>
           <tr>
+            <th>Status</th>
             <th>Nome</th>
             <th>SKU</th>
             <th>Estoque Atual</th>
-            <th>Ponto de Reposição</th>
+            <th>Média de Vendas/dia</th>
+            <th>Dias até Zerar</th>
           </tr>
         </thead>
         <tbody>
           {products.map((product) => (
             <tr key={product.id}>
+              <td>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    backgroundColor: statusColors[product.status],
+                    marginRight: 8,
+                  }}
+                ></span>
+                {statusLabels[product.status]}
+              </td>
               <td>{product.name}</td>
               <td>{product.sku}</td>
               <td>{product.current_stock}</td>
-              <td>{product.reorder_point}</td>
+              <td>{product.average_daily_sales}</td>
+              <td>
+                {product.days_until_stockout !== null
+                  ? `${product.days_until_stockout} dias`
+                  : "-"}
+              </td>
             </tr>
           ))}
         </tbody>
