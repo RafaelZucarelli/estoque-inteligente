@@ -1,3 +1,4 @@
+from forecasting import calculate_forecast
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -113,3 +114,18 @@ def register_restock(product_id: int, restock_data: schemas.RestockCreate, db: S
     db.commit()
     db.refresh(movement)
     return movement
+
+@router.get("/{product_id}/forecast", response_model=schemas.ForecastResponse)
+def get_forecast(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+
+    forecast_data = calculate_forecast(product, db)
+
+    return schemas.ForecastResponse(
+        product_id=product.id,
+        product_name=product.name,
+        current_stock=product.current_stock,
+        **forecast_data
+    )

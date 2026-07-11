@@ -57,3 +57,12 @@ class StockMovementResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ForecastResponse(BaseModel):
+    product_id: int
+    product_name: str
+    current_stock: int
+    average_daily_sales: float
+    days_until_stockout: Optional[float]
+    status: str
