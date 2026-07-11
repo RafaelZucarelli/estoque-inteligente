@@ -8,6 +8,20 @@ Pequenas lojas e varejistas frequentemente perdem vendas porque não sabem quand
 
 Esse projeto resolve isso calculando, com base no ritmo de vendas de cada produto, **quantos dias faltam até o estoque zerar**, permitindo que o lojista se antecipe.
 
+## 📸 Preview
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Cadastro de produto
+![Formulário de cadastro](docs/screenshots/FormularioCadastro.png)
+
+### Documentação da API (Swagger)
+![Swagger](docs/screenshots/Swagger.png)
+
+
+
+
 ## ✨ Funcionalidades
 
 - Cadastro, edição e remoção de produtos
