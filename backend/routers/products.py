@@ -59,3 +59,57 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     db.delete(product)
     db.commit()
     return {"message": "Produto removido com sucesso"}
+
+@router.post("/{product_id}/sale", response_model=schemas.SaleResponse)
+def register_sale(product_id: int, sale_data: schemas.SaleCreate, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+
+    if sale_data.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantidade deve ser maior que zero")
+
+    if product.current_stock < sale_data.quantity:
+        raise HTTPException(status_code=400, detail="Estoque insuficiente para essa venda")
+
+    # Registra a venda
+    new_sale = models.Sale(product_id=product_id, quantity=sale_data.quantity)
+    db.add(new_sale)
+
+    # Registra a movimentação de saída (auditoria)
+    movement = models.StockMovement(
+        product_id=product_id,
+        type="saida",
+        quantity=sale_data.quantity
+    )
+    db.add(movement)
+
+    # Atualiza o estoque atual
+    product.current_stock -= sale_data.quantity
+
+    db.commit()
+    db.refresh(new_sale)
+    return new_sale
+
+
+@router.post("/{product_id}/restock", response_model=schemas.StockMovementResponse)
+def register_restock(product_id: int, restock_data: schemas.RestockCreate, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+
+    if restock_data.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantidade deve ser maior que zero")
+
+    movement = models.StockMovement(
+        product_id=product_id,
+        type="entrada",
+        quantity=restock_data.quantity
+    )
+    db.add(movement)
+
+    product.current_stock += restock_data.quantity
+
+    db.commit()
+    db.refresh(movement)
+    return movement

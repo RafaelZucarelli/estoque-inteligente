@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 
 class ProductBase(BaseModel):
@@ -24,6 +25,35 @@ class ProductUpdate(BaseModel):
 
 class ProductResponse(ProductBase):
     id: int
+
+    class Config:
+        from_attributes = True
+
+
+class SaleCreate(BaseModel):
+    quantity: int
+
+
+class SaleResponse(BaseModel):
+    id: int
+    product_id: int
+    quantity: int
+    date: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class RestockCreate(BaseModel):
+    quantity: int
+
+
+class StockMovementResponse(BaseModel):
+    id: int
+    product_id: int
+    type: str
+    quantity: int
+    date: datetime
 
     class Config:
         from_attributes = True
